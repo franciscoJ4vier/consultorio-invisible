@@ -2,54 +2,98 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Consultorio Invisible AR</title>
+    
     <!-- Librerías de AR -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     
     <style>
-        body { margin: 0; overflow: hidden; font-family: sans-serif; }
-        .ui-overlay {
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* FIX ZOOM: Forzar que el video ocupe toda la pantalla sin zoom raro */
+        video, .a-canvas {
+            width: 100vw !important;
+            height: 100vh !important;
+            top: 0 !important;
+            left: 0 !important;
+            object-fit: cover !important;
+        }
+
+        /* UI Overlay */
+        .branding {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.8); color: white; padding: 15px;
-            border-radius: 20px; z-index: 10; text-align: center; width: 80%;
+            background: rgba(0, 0, 0, 0.8); color: white; padding: 12px 25px;
+            border-radius: 30px; z-index: 999; text-align: center; width: 70%;
+            border: 1px solid #4ECDC4; pointer-events: none;
         }
-        #loading-screen {
-            position: fixed; inset: 0; background: #2c3e50; 
+
+        /* Botón Fullscreen */
+        #btn-fs {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 50px; height: 50px; background: #4ECDC4;
+            border-radius: 50%; border: none; cursor: pointer;
+            z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             display: flex; justify-content: center; align-items: center;
-            color: white; z-index: 100; transition: opacity 0.5s;
         }
+
+        #loading-screen {
+            position: fixed; inset: 0; background: #1a1a1a;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; color: white; z-index: 10000; transition: opacity 0.8s;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid #4ECDC4;
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen"><h2>Cargando Experiencia...</h2></div>
-
-    <div class="ui-overlay">
-        <h2 style="margin:0; color:#4ECDC4;">CONSULTORIO INVISIBLE</h2>
-        <p style="margin:5px 0; font-size: 12px;">Apunta al marcador HIRO</p>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p>Iniciando Experiencia...</p>
     </div>
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
+    <div class="branding">
+        <h3 style="margin:0; font-size: 16px;">CONSULTORIO INVISIBLE</h3>
+        <p style="margin:0; font-size: 11px; opacity: 0.8;">Apunta al marcador Hiro</p>
+    </div>
+
+    <button id="btn-fs">
+        <svg fill="#fff" width="24" height="24" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+    </button>
+
+    <a-scene 
+        embedded 
+        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        vr-mode-ui="enabled: false"
+        renderer="antialias: true; logarithmicDepthBuffer: true; colorManagement: true;">
         
         <a-marker preset="hiro" id="marker">
-            <!-- La Camilla (Hecha con figuras básicas) -->
-            <a-entity id="escena-ar" position="0 0 0">
-                <!-- Base -->
-                <a-box position="0 0.2 0" width="1.5" height="0.1" depth="0.7" color="#CCCCCC"></a-box>
-                <!-- Colchón -->
-                <a-box position="0 0.3 0" width="1.4" height="0.1" depth="0.65" color="#FFFFFF"></a-box>
+            <!-- Grupo Camilla -->
+            <a-entity id="camilla" scale="1 1 1">
+                <!-- Estructura -->
+                <a-box position="0 0.1 0" width="1.5" height="0.1" depth="0.7" color="#d1d1d1"></a-box>
+                <a-box position="0 0.2 0" width="1.4" height="0.1" depth="0.65" color="#ffffff"></a-box>
                 <!-- Patas -->
-                <a-cylinder position="-0.6 0 -0.25" radius="0.03" height="0.4" color="#888"></a-cylinder>
-                <a-cylinder position="0.6 0 -0.25" radius="0.03" height="0.4" color="#888"></a-cylinder>
-                <a-cylinder position="-0.6 0 0.25" radius="0.03" height="0.4" color="#888"></a-cylinder>
-                <a-cylinder position="0.6 0 0.25" radius="0.03" height="0.4" color="#888"></a-cylinder>
-
-                <!-- Texto que aparece después -->
-                <a-text id="mensaje" value="Cuando no somos comprendidos,\nno somos atendidos." 
-                        position="0 1.2 0" align="center" color="#FFE66D" width="3" opacity="0"></a-text>
+                <a-cylinder position="-0.6 -0.1 -0.25" radius="0.03" height="0.5" color="#7f8c8d"></a-cylinder>
+                <a-cylinder position="0.6 -0.1 -0.25" radius="0.03" height="0.5" color="#7f8c8d"></a-cylinder>
+                <a-cylinder position="-0.6 -0.1 0.25" radius="0.03" height="0.5" color="#7f8c8d"></a-cylinder>
+                <a-cylinder position="0.6 -0.1 0.25" radius="0.03" height="0.5" color="#7f8c8d"></a-cylinder>
             </a-entity>
+
+            <!-- Texto Revelador -->
+            <a-text id="frase" 
+                    value="Cuando no somos comprendidos,\nno somos atendidos." 
+                    position="0 1.2 0" align="center" color="#FFE66D" 
+                    width="3.5" opacity="0" scale="0.5 0.5 0.5">
+            </a-text>
         </a-marker>
 
         <a-entity camera></a-entity>
@@ -57,22 +101,43 @@
 
     <script>
         // Quitar pantalla de carga
-        window.onload = () => {
-            setTimeout(() => document.getElementById('loading-screen').style.opacity = '0', 1000);
-            setTimeout(() => document.getElementById('loading-screen').remove(), 1500);
-        };
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loading-screen');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 800);
+            }, 2000);
+        });
 
-        // Lógica de la animación
+        // Botón Pantalla Completa
+        const btn = document.getElementById('btn-fs');
+        btn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        // Lógica de la Experiencia
         const marker = document.querySelector('#marker');
-        const mensaje = document.querySelector('#mensaje');
-        const escena = document.querySelector('#escena-ar');
+        const camilla = document.querySelector('#camilla');
+        const frase = document.querySelector('#frase');
+        let ejecutado = false;
 
         marker.addEventListener('markerFound', () => {
-            // Animación: Desaparecer camilla y mostrar texto
+            if (ejecutado) return;
+            ejecutado = true;
+
+            // Esperar 3 segundos viendo la camilla y luego transformar
             setTimeout(() => {
-                escena.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 1000');
+                // Desvanecer camilla
+                camilla.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 1000; easing: easeInBack');
+                
+                // Mostrar frase
                 setTimeout(() => {
-                    mensaje.setAttribute('animation', 'property: opacity; to: 1; dur: 1000');
+                    frase.setAttribute('animation', 'property: opacity; to: 1; dur: 1000');
+                    frase.setAttribute('animation__scale', 'property: scale; to: 1 1 1; dur: 1200; easing: easeOutElastic');
                 }, 1000);
             }, 3000);
         });
