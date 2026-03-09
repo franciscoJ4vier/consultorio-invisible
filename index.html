@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultorio Invisible AR</title>
+    <!-- Librerías de AR -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
+    <style>
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        .ui-overlay {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 15px;
+            border-radius: 20px; z-index: 10; text-align: center; width: 80%;
+        }
+        #loading-screen {
+            position: fixed; inset: 0; background: #2c3e50; 
+            display: flex; justify-content: center; align-items: center;
+            color: white; z-index: 100; transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen"><h2>Cargando Experiencia...</h2></div>
+
+    <div class="ui-overlay">
+        <h2 style="margin:0; color:#4ECDC4;">CONSULTORIO INVISIBLE</h2>
+        <p style="margin:5px 0; font-size: 12px;">Apunta al marcador HIRO</p>
+    </div>
+
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false">
+        
+        <a-marker preset="hiro" id="marker">
+            <!-- La Camilla (Hecha con figuras básicas) -->
+            <a-entity id="escena-ar" position="0 0 0">
+                <!-- Base -->
+                <a-box position="0 0.2 0" width="1.5" height="0.1" depth="0.7" color="#CCCCCC"></a-box>
+                <!-- Colchón -->
+                <a-box position="0 0.3 0" width="1.4" height="0.1" depth="0.65" color="#FFFFFF"></a-box>
+                <!-- Patas -->
+                <a-cylinder position="-0.6 0 -0.25" radius="0.03" height="0.4" color="#888"></a-cylinder>
+                <a-cylinder position="0.6 0 -0.25" radius="0.03" height="0.4" color="#888"></a-cylinder>
+                <a-cylinder position="-0.6 0 0.25" radius="0.03" height="0.4" color="#888"></a-cylinder>
+                <a-cylinder position="0.6 0 0.25" radius="0.03" height="0.4" color="#888"></a-cylinder>
+
+                <!-- Texto que aparece después -->
+                <a-text id="mensaje" value="Cuando no somos comprendidos,\nno somos atendidos." 
+                        position="0 1.2 0" align="center" color="#FFE66D" width="3" opacity="0"></a-text>
+            </a-entity>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+    </a-scene>
+
+    <script>
+        // Quitar pantalla de carga
+        window.onload = () => {
+            setTimeout(() => document.getElementById('loading-screen').style.opacity = '0', 1000);
+            setTimeout(() => document.getElementById('loading-screen').remove(), 1500);
+        };
+
+        // Lógica de la animación
+        const marker = document.querySelector('#marker');
+        const mensaje = document.querySelector('#mensaje');
+        const escena = document.querySelector('#escena-ar');
+
+        marker.addEventListener('markerFound', () => {
+            // Animación: Desaparecer camilla y mostrar texto
+            setTimeout(() => {
+                escena.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 1000');
+                setTimeout(() => {
+                    mensaje.setAttribute('animation', 'property: opacity; to: 1; dur: 1000');
+                }, 1000);
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
