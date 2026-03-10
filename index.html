@@ -3,57 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Consultorio Invisible - Protocolo 3.0</title>
+    <title>#SALUDame - Consultorio Invisible</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-        :root { --line-color: rgba(255, 255, 255, 0.4); }
-        body { margin: 0; overflow: hidden; background: #000; font-family: monospace; }
+        :root {
+            --primary-white: #FFFFFF;
+            --text-gray: #CCCCCC;
+            --bg-overlay: rgba(0, 0, 0, 0.7);
+        }
 
-        /* VISOR DE DIAGNÓSTICO */
-        .ui-overlay {
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Helvetica', Arial, sans-serif; }
+
+        /* INTERFAZ INSTITUCIONAL (Punto 9: Sobrio y Accesible) */
+        .ui-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            border: 1px solid var(--line-color);
+            border: 2px solid rgba(255,255,255,0.1);
             box-sizing: border-box; pointer-events: none; z-index: 10;
-            margin: 15px; width: calc(100% - 30px); height: calc(100% - 30px);
         }
 
-        .status-header {
-            position: fixed; top: 25px; left: 40px; color: white;
-            font-size: 10px; letter-spacing: 3px; z-index: 20;
+        .campaign-header {
+            position: fixed; top: 30px; width: 100%; text-align: center;
+            color: var(--primary-white); z-index: 20;
+            text-transform: uppercase; letter-spacing: 5px; font-size: 14px;
         }
 
-        .data-logs {
-            position: fixed; bottom: 40px; right: 40px; color: #888;
-            font-size: 9px; text-align: right; z-index: 20;
+        .instruction-tag {
+            position: fixed; bottom: 40px; width: 100%; text-align: center;
+            color: var(--text-gray); z-index: 20; font-size: 10px;
+            letter-spacing: 2px; text-transform: uppercase;
         }
 
-        #arjs-video { filter: grayscale(1) contrast(1.2); }
+        /* FILTRO DE VIDEO PARA REVELAR LO INVISIBLE (Punto 2.2) */
+        #arjs-video { filter: saturate(0.5) brightness(0.7); }
     </style>
 </head>
 <body>
 
-    <div class="ui-overlay"></div>
-    <div class="status-header">SYSTEM: SCANNING_DEBT // V.3.0</div>
-    <div class="data-logs">LOG: MARKER_EXPECTED<br>STATUS: STANDBY</div>
+    <div class="ui-layer"></div>
+    <div class="campaign-header">#SALUDame</div>
+    <div class="instruction-tag" id="status">Escaneando marcador institucional...</div>
 
     <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;">
         
-        <a-marker preset="hiro" id="marker">
+        <a-marker preset="hiro" id="marker-camilla">
             
-            <a-box id="cubo-clinico" 
-                   position="0 0.5 0" 
-                   material="color: #ffffff; wireframe: true; wireframeLinewidth: 1; opacity: 0.6"
-                   animation="property: rotation; to: 0 360 0; loop: true; dur: 20000; easing: linear">
-            </a-box>
+            <a-entity id="estructura-camilla" position="0 0 0">
+                <a-box position="0 0.3 0" width="1.5" height="0.1" depth="0.8" color="#FFFFFF" opacity="0.4" wireframe="true"></a-box>
+                <a-box position="0 0.1 0" width="1.4" height="0.4" depth="0.7" color="#CCCCCC" opacity="0.2"></a-box>
+            </a-entity>
 
-            <a-text id="txt-principal" 
-                    value="ANALISIS: BARRERA DETECTADA" 
-                    position="0 1.5 0" align="center" color="#ffffff" width="3.5" opacity="0"></a-text>
-            
-            <a-text id="txt-secundario" 
+            <a-text id="mensaje-discapacidad" 
                     value="Cuando no somos comprendidos,\nno somos atendidos." 
-                    position="0 1.0 0" align="center" color="#888888" width="2.5" opacity="0"></a-text>
+                    position="0 1.5 0" align="center" color="#FFFFFF" width="4" opacity="0"
+                    font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt">
+            </a-text>
+            
+            <a-text id="sub-mensaje" 
+                    value="MI SALUD IMPORTA. YO EXISTO." 
+                    position="0 1.0 0" align="center" color="#FFFFFF" width="2.5" opacity="0"
+                    font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt">
+            </a-text>
 
         </a-marker>
 
@@ -61,31 +71,36 @@
     </a-scene>
 
     <script>
-        const marker = document.querySelector('#marker');
-        const cubo = document.querySelector('#cubo-clinico');
-        const t1 = document.querySelector('#txt-principal');
-        const t2 = document.querySelector('#txt-secundario');
+        const marker = document.querySelector('#marker-camilla');
+        const camilla = document.querySelector('#estructura-camilla');
+        const txt1 = document.querySelector('#mensaje-discapacidad');
+        const txt2 = document.querySelector('#sub-mensaje');
+        const status = document.querySelector('#status');
 
         marker.addEventListener('markerFound', () => {
-            document.querySelector('.data-logs').innerHTML = "LOG: TARGET_LOCKED<br>STATUS: ANALYZING";
+            status.innerHTML = "IDENTIFICADO: ELEMENTO CAMILLA";
             
-            // Secuencia de desvanecimiento técnica (Brief Punto 6.1)
+            // Secuencia del Brief: La camilla se desvanece (Punto 6.1)
             setTimeout(() => {
-                cubo.setAttribute('animation__fade', 'property: scale; to: 0.1 2 0.1; dur: 2500; easing: easeInOutExpo');
+                camilla.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 2500; easing: easeInCubic');
+                camilla.setAttribute('animation__fade', 'property: opacity; to: 0; dur: 2000');
                 
+                // Aparece la voz de la persona con discapacidad (Punto 2.5)
                 setTimeout(() => {
-                    t1.setAttribute('animation', 'property: opacity; to: 1; dur: 1000');
-                    t2.setAttribute('animation', 'property: opacity; to: 1; dur: 1000; delay: 500');
-                    hablar("Cuando no somos comprendidos, no somos atendidos"); // referencia citada removed
-                }, 2000);
+                    txt1.setAttribute('animation', 'property: opacity; to: 1; dur: 1000');
+                    txt2.setAttribute('animation', 'property: opacity; to: 1; dur: 1000; delay: 800');
+                    status.innerHTML = "INTERPELACIÓN ACTIVA";
+                    speak("Cuando no somos comprendidos, no somos atendidos. Mi salud importa. Yo existo.");
+                }, 1500);
             }, 1000);
         });
 
-        function hablar(msg) {
+        function speak(text) {
             if ('speechSynthesis' in window) {
-                const u = new SpeechSynthesisUtterance(msg);
-                u.lang = 'es-ES'; u.rate = 0.8; u.pitch = 0.5; // Voz sintética muy seria
-                window.speechSynthesis.speak(u);
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.85; // Tono pausado y serio (Punto 9)
+                window.speechSynthesis.speak(utterance);
             }
         }
     </script>
