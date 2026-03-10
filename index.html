@@ -3,71 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>#SALUDame - Consultorio Invisible</title>
+    <title>#SALUDame - Estaciones de Incidencia</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-        /* PANTALLA DE BIENVENIDA / CARGA */
         #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; color: white; z-index: 10000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 1s ease; font-family: sans-serif;
+            transition: opacity 0.8s; font-family: 'Helvetica', sans-serif;
         }
-        .loader {
-            width: 40px; height: 40px; border: 2px solid #333;
-            border-top: 2px solid #fff; border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
-        }
+        .loader { width: 30px; height: 30px; border: 2px solid #222; border-top: 2px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .welcome-text { letter-spacing: 5px; font-size: 14px; text-transform: uppercase; font-weight: 300; }
-
-        /* INTERFAZ DE USUARIO AR (Invisible hasta que cargue) */
-        #ui-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 100; display: none;
-            border: 15px solid transparent; box-sizing: border-box;
-        }
-        .status-bar { color: white; font-size: 10px; font-family: monospace; text-align: center; margin-top: 20px; }
-
-        /* Ajustes de cámara para evitar que se rompa el aspecto */
-        body { margin: 0; overflow: hidden; background: #000; }
-        #arjs-video { filter: grayscale(1) brightness(0.6); }
+        .ui-header { position: fixed; top: 30px; width: 100%; text-align: center; color: white; z-index: 100; letter-spacing: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        #arjs-video { filter: contrast(1.1) brightness(0.8) grayscale(0.5); }
     </style>
 </head>
 <body>
 
     <div id="splash">
         <div class="loader"></div>
-        <div class="welcome-text">Iniciando Protocolo #SALUDame</div>
-        <p style="color: #666; font-size: 9px; margin-top: 15px;">CARGANDO COMPONENTES DE INCIDENCIA...</p>
+        <div style="letter-spacing: 3px; font-size: 11px;">PROTOCOLOS DE VISIBILIDAD</div>
     </div>
 
-    <div id="ui-overlay">
-        <div class="status-bar" id="log">BUSCANDO ENTORNO CLÍNICO...</div>
-    </div>
+    <div class="ui-header">#SALUDame : CONSULTORIO INVISIBLE</div>
 
-    <a-scene 
-        embedded 
-        vr-mode-ui="enabled: false" 
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix;"
-        renderer="precision: medium; antialias: true;">
-
-        <a-marker preset="hiro" id="marker">
-            <a-entity id="main-content" scale="0.8 0.8 0.8">
+    <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;">
+        
+        <a-marker preset="kanji" id="marker-escritorio">
+            <a-entity id="escritorio-logic">
+                <a-text id="term-1" value="HIPERCOLESTEROLEMIA\nIDIOPATICA" position="-1 1.5 0" width="2" color="#666" opacity="1"></a-text>
+                <a-text id="term-2" value="PROCEDIMIENTO\nINVASIVO" position="1 1.2 -1" width="2" color="#666" opacity="1"></a-text>
                 
-                <a-entity id="camilla-mesh">
-                    <a-box position="0 0.2 0" width="1.5" height="0.1" depth="0.8" color="#FFF" opacity="0.4" wireframe="true"></a-box>
-                    <a-box position="0 0.1 0" width="1.4" height="0.3" depth="0.7" color="#FFF" opacity="0.1"></a-box>
-                </a-entity>
+                <a-text id="msg-escritorio" 
+                        value="LA INFORMACION ES UN DERECHO.\nHABLAME CLARO." 
+                        position="0 1.5 0" align="center" color="#FFF" width="4" scale="0 0 0"></a-text>
+            </a-entity>
+        </a-marker>
 
-                <a-entity id="textos" position="0 1.3 0" scale="0 0 0">
-                    <a-text value="Cuando no somos comprendidos,\nno somos atendidos." 
-                            align="center" color="#FFFFFF" width="3.5" position="0 0.2 0"></a-text>
-                    <a-text value="YO EXISTO. MI SALUD IMPORTA." 
-                            align="center" color="#888" width="2.5" position="0 -0.3 0"></a-text>
-                </a-entity>
+        <a-marker preset="hiro" id="marker-silla">
+            <a-entity id="silla-logic">
+                <a-box id="presencia" position="0 0.5 0" material="wireframe: true; color: #FFF" scale="1 1 1"></a-box>
+                
+                <a-text id="msg-silla" 
+                        value="HABLAME A MI.\nNO A MI ACOMPAÑANTE." 
+                        position="0 1.6 0" align="center" color="#FFF" width="4.5" opacity="0"></a-text>
             </a-entity>
         </a-marker>
 
@@ -75,44 +56,45 @@
     </a-scene>
 
     <script>
-        const splash = document.getElementById('splash');
-        const ui = document.getElementById('ui-overlay');
-        const marker = document.getElementById('marker');
-        const log = document.getElementById('log');
-        const camilla = document.getElementById('camilla-mesh');
-        const textos = document.getElementById('textos');
-
-        // 1. GESTIÓN DE CARGA: Quitar splash cuando la cámara esté lista
+        // Quitar Splash
         window.addEventListener('camera-init', () => {
-            setTimeout(() => {
-                splash.style.opacity = '0';
-                ui.style.display = 'block';
-                setTimeout(() => splash.remove(), 1000);
-            }, 2000); // Pausa de cortesía para lectura de bienvenida
+            setTimeout(() => { document.getElementById('splash').style.opacity = '0'; }, 1500);
         });
 
-        // 2. LÓGICA DE LA EXPERIENCIA (Brief 6.1)
-        marker.addEventListener('markerFound', () => {
-            log.innerText = "✓ ELEMENTO IDENTIFICADO: CAMILLA";
+        // Lógica Estación Escritorio
+        document.querySelector('#marker-escritorio').addEventListener('markerFound', () => {
+            const t1 = document.querySelector('#term-1');
+            const t2 = document.querySelector('#term-2');
+            const msg = document.querySelector('#msg-escritorio');
+
+            // Las palabras complejas se desvanecen
+            t1.setAttribute('animation', 'property: opacity; to: 0; dur: 2000');
+            t2.setAttribute('animation', 'property: opacity; to: 0; dur: 2000; delay: 500');
             
             setTimeout(() => {
-                // Desvanecimiento técnico
-                camilla.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 2000; easing: easeInExpo');
-                
-                setTimeout(() => {
-                    // Revelar mensaje de incidencia
-                    textos.setAttribute('animation', 'property: scale; to: 1 1 1; dur: 1000; easing: easeOutElastic');
-                    log.innerText = "INTERPELACIÓN: VOZ ACTIVA";
-                    hablar("Cuando no somos comprendidos, no somos atendidos. Yo existo. Mi salud importa.");
-                }, 1800);
-            }, 1000);
+                msg.setAttribute('animation', 'property: scale; to: 1 1 1; dur: 1000; easing: easeOutElastic');
+                speak("La información es un derecho. Háblame claro.");
+            }, 2500);
         });
 
-        function hablar(t) {
+        // Lógica Estación Silla
+        document.querySelector('#marker-silla').addEventListener('markerFound', () => {
+            const presencia = document.querySelector('#presencia');
+            const msg = document.querySelector('#msg-silla');
+
+            presencia.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 2000');
+            
+            setTimeout(() => {
+                msg.setAttribute('animation', 'property: opacity; to: 1; dur: 1000');
+                speak("Háblame a mí. No a mi acompañante.");
+            }, 1500);
+        });
+
+        function speak(t) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const u = new SpeechSynthesisUtterance(t);
-                u.lang = 'es-ES'; u.rate = 0.85; u.pitch = 0.8;
+                u.lang = 'es-ES'; u.rate = 0.85;
                 window.speechSynthesis.speak(u);
             }
         }
