@@ -3,101 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Consultorio Invisible | Premium AR</title>
+    <title>Consultorio Invisible | Marco Premium</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
     <style>
         :root {
             --primary: #4ECDC4;
             --accent: #FFE66D;
-            --bg-glass: rgba(15, 15, 15, 0.7);
+            --frame-color: #ffffff; /* Color de los bordes que pediste */
+            --frame-thickness: 15px; /* Grosor de los bordes */
         }
 
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: sans-serif; }
 
-        /* Header Minimalista */
-        .header {
-            position: fixed; top: 0; left: 0; width: 100%;
-            padding: 20px; box-sizing: border-box;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            color: white; z-index: 10; text-align: left;
+        /* --- LA MÁSCARA DE INTERFAZ (BORDES BLANCOS) --- */
+        /* Esta capa crea el marco blanco sobre el video, pero DEBAJO del canvas 3D */
+        .ui-frame {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* Deja pasar los toques */
+            z-index: 5; /* Por encima del video, por debajo del cubo */
+            box-sizing: border-box;
+            border-top: var(--frame-thickness) solid var(--frame-color);
+            border-bottom: var(--frame-thickness) solid var(--frame-color);
+            border-left: var(--frame-thickness) solid var(--frame-color);
+            /* El lado derecho ya está cubierto por tu diseño original, 
+               pero lo aseguramos aquí para consistencia visual */
+            border-right: var(--frame-thickness) solid var(--frame-color);
+        }
+
+        /* Título integrado en el marco superior */
+        .header-title {
+            position: fixed;
+            top: calc(var(--frame-thickness) + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            color: #333; /* Texto oscuro sobre fondo blanco */
+            z-index: 10;
+            font-size: 14px;
             letter-spacing: 2px;
+            font-weight: bold;
+            text-align: center;
         }
-        .header h1 { margin: 0; font-size: 14px; font-weight: 300; opacity: 0.8; }
-        .header div { width: 40px; height: 2px; background: var(--primary); margin-top: 5px; }
 
-        /* Contenedor de Botones */
+        /* --- AJUSTE DE LA ESCENA AR --- */
+        /* Forzamos que el video de la cámara ocupe todo el fondo */
+        #arjs-video {
+            object-fit: cover !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            position: absolute !important;
+            top: 0 !important; left: 0 !important;
+            z-index: 1; /* Al fondo */
+        }
+
+        /* El canvas donde se dibuja el cubo debe estar por encima del marco */
+        .a-canvas {
+            z-index: 6 !important; /* Por encima de .ui-frame */
+        }
+
+        /* --- BOTONES MINIMALISTAS --- */
         .ui-container {
-            position: fixed; bottom: 40px; left: 0; width: 100%;
-            display: flex; flex-direction: column; align-items: center;
-            gap: 12px; z-index: 100;
+            position: fixed; bottom: calc(var(--frame-thickness) + 20px); 
+            left: 50%; transform: translateX(-50%);
+            display: flex; gap: 15px; z-index: 100; width: 85%;
         }
 
         .btn-elegant {
-            background: var(--bg-glass);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            width: 85%;
-            padding: 18px;
-            border-radius: 15px;
-            font-size: 13px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white; flex: 1; padding: 15px;
+            border-radius: 10px; font-size: 12px;
+            text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.2s ease;
         }
 
         .btn-elegant:active {
             transform: scale(0.95);
-            background: rgba(78, 205, 196, 0.2);
+            background: rgba(78, 205, 196, 0.3);
             border-color: var(--primary);
         }
-
-        .btn-elegant span { color: var(--primary); font-size: 18px; }
-
-        /* Ajuste de video */
-        #arjs-video { object-fit: cover !important; }
     </style>
 </head>
-<body>
+<body style="margin: 0; overflow: hidden;">
 
-    <div class="header">
-        <h1>CONSULTORIO INVISIBLE</h1>
-        <div></div>
-    </div>
+    <div class="header-title">CONSULTORIO INVISIBLE</div>
+
+    <div class="ui-frame"></div>
 
     <div class="ui-container">
-        <button class="btn-elegant" onclick="speak('La empatía es el primer paso para una atención digna.', 'EMPATÍA')">
-            La Experiencia del Paciente <span>→</span>
-        </button>
-        
-        <button class="btn-elegant" onclick="speak('Cuando no somos comprendidos, no somos atendidos.', 'VISIBILIDAD')">
-            Barreras Invisibles <span>→</span>
-        </button>
-
-        <button class="btn-elegant" style="border-color: var(--accent);" onclick="speak('El sistema debe adaptarse a la persona, no al revés.', 'SISTEMA')">
-            Propuesta de Cambio <span>●</span>
-        </button>
+        <button class="btn-elegant" onclick="speak('La empatía es el primer paso.')">EMPATÍA</button>
+        <button class="btn-elegant" onclick="speak('Barreras Invisibles.')">VISIBILIDAD</button>
     </div>
 
-    <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-scene 
+        embedded 
+        vr-mode-ui="enabled: false" 
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+        renderer="logarithmicDepthBuffer: true; antialias: true;">
         
         <a-marker preset="hiro">
-            <!-- Objeto Central Elegante -->
-            <a-box id="objeto-ar" position="0 0.5 0" scale="0.8 0.8 0.8"
-                   material="color: #ffffff; opacity: 0.9; metalness: 0.5; roughness: 0.2"
-                   animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            
+            <a-box id="objeto-ar" 
+                   position="0 0.6 0" 
+                   scale="1.2 1.2 1.2"
+                   material="color: #4ECDC4; opacity: 0.9; metalness: 0.5; roughness: 0.2"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
+                   visible="false">
             </a-box>
 
-            <!-- Texto AR -->
             <a-text id="texto-ar" value="..." 
-                    position="0 1.5 0" align="center" color="#FFE66D" 
-                    width="3.2" font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt">
+                    position="0 1.8 0" align="center" color="#FFE66D" 
+                    width="3.5" font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt"
+                    visible="false">
             </a-text>
         </a-marker>
 
@@ -105,28 +123,44 @@
     </a-scene>
 
     <script>
+        const marker = document.querySelector('a-marker');
         const textoEntidad = document.querySelector('#texto-ar');
         const objetoAr = document.querySelector('#objeto-ar');
 
-        function speak(frase, etiqueta) {
-            // Actualizar Texto en AR
+        // Mostrar/ocultar elementos cuando se detecta el marcador
+        marker.addEventListener('markerFound', () => {
+            objetoAr.setAttribute('visible', 'true');
+            textoEntidad.setAttribute('visible', 'true');
+            console.log("Marcador detectado - Elementos AR visibles");
+        });
+
+        marker.addEventListener('markerLost', () => {
+            objetoAr.setAttribute('visible', 'false');
+            textoEntidad.setAttribute('visible', 'false');
+            console.log("Marcador perdido - Elementos AR ocultos");
+        });
+
+        function speak(frase) {
             textoEntidad.setAttribute('value', frase);
             
-            // Animación de pulso al objeto
+            // Animación de pulso
             objetoAr.setAttribute('animation__pulse', {
                 property: 'scale',
-                from: '0.8 0.8 0.8',
-                to: '1.1 1.1 1.1',
-                dur: 300,
+                from: '1.2 1.2 1.2',
+                to: '1.4 1.4 1.4',
+                dur: 250,
                 dir: 'alternate',
                 loop: 2
             });
 
-            // Voz
-            const utterance = new SpeechSynthesisUtterance(frase);
-            utterance.lang = 'es-ES';
-            utterance.rate = 0.9; // Un poco más lento para que suene elegante
-            window.speechSynthesis.speak(utterance);
+            // Voz (con verificación de soporte)
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(frase);
+                utterance.lang = 'es-ES';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.warn('Speech synthesis no soportado en este navegador');
+            }
         }
     </script>
 </body>
