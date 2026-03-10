@@ -2,98 +2,98 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Consultorio Invisible | Marco Premium</title>
-    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- removed user-scalable=no for accessibility -->
+    <title>Consultorio AR | Super Frame</title>
+    <script defer src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
     <style>
         :root {
             --primary: #4ECDC4;
-            --accent: #FFE66D;
-            --frame-color: #ffffff; /* Color de los bordes que pediste */
-            --frame-thickness: 15px; /* Grosor de los bordes */
+            --frame-color: #ffffff;
+            /* AQUÍ AJUSTAS EL TAMAÑO DE LOS BORDES */
+            --frame-thickness: 40px; 
         }
 
-        body { margin: 0; overflow: hidden; background: #1a1a1a; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Helvetica', sans-serif; }
 
-        /* --- LA MÁSCARA DE INTERFAZ (BORDES BLANCOS) --- */
-        /* Esta capa crea el marco blanco sobre el video, pero DEBAJO del canvas 3D */
+        /* EL MARCO GRANDE */
         .ui-frame {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; /* Deja pasar los toques */
-            z-index: 5; /* Por encima del video, por debajo del cubo */
+            pointer-events: none;
+            z-index: 5;
             box-sizing: border-box;
-            border-top: var(--frame-thickness) solid var(--frame-color);
-            border-bottom: var(--frame-thickness) solid var(--frame-color);
-            border-left: var(--frame-thickness) solid var(--frame-color);
-            /* El lado derecho ya está cubierto por tu diseño original, 
-               pero lo aseguramos aquí para consistencia visual */
-            border-right: var(--frame-thickness) solid var(--frame-color);
+            border: var(--frame-thickness) solid var(--frame-color);
         }
 
-        /* Título integrado en el marco superior */
+        /* Título sobre el marco superior */
         .header-title {
             position: fixed;
-            top: calc(var(--frame-thickness) + 10px);
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            color: #333; /* Texto oscuro sobre fondo blanco */
+            color: #333;
             z-index: 10;
-            font-size: 14px;
-            letter-spacing: 2px;
-            font-weight: bold;
-            text-align: center;
+            font-size: 12px;
+            letter-spacing: 3px;
+            font-weight: 900;
+            text-transform: uppercase;
         }
 
-        /* --- AJUSTE DE LA ESCENA AR --- */
-        /* Forzamos que el video de la cámara ocupe todo el fondo */
         #arjs-video {
             object-fit: cover !important;
             width: 100vw !important;
             height: 100vh !important;
             position: absolute !important;
             top: 0 !important; left: 0 !important;
-            z-index: 1; /* Al fondo */
+            z-index: 1;
         }
 
-        /* El canvas donde se dibuja el cubo debe estar por encima del marco */
+        /* El Canvas AR por encima de todo para que el cubo traspase */
         .a-canvas {
-            z-index: 6 !important; /* Por encima de .ui-frame */
+            z-index: 100 !important;
         }
 
-        /* --- BOTONES MINIMALISTAS --- */
+        /* Botones integrados */
         .ui-container {
-            position: fixed; bottom: calc(var(--frame-thickness) + 20px); 
-            left: 50%; transform: translateX(-50%);
-            display: flex; gap: 15px; z-index: 100; width: 85%;
+            position: fixed; 
+            bottom: calc(var(--frame-thickness) + 20px); 
+            left: 50%; 
+            transform: translateX(-50%);
+            display: flex; 
+            gap: 10px; 
+            z-index: 101; 
+            width: 80%;
         }
 
         .btn-elegant {
-            background: rgba(0,0,0,0.8);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white; flex: 1; padding: 15px;
-            border-radius: 10px; font-size: 12px;
-            text-transform: uppercase; letter-spacing: 1px;
-            transition: all 0.2s ease;
+            background: #1a1a1a;
+            border: none;
+            color: white; 
+            flex: 1; 
+            padding: 15px;
+            border-radius: 5px; 
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
         .btn-elegant:active {
-            transform: scale(0.95);
-            background: rgba(78, 205, 196, 0.3);
-            border-color: var(--primary);
+            background: var(--primary);
+            color: #1a1a1a;
         }
     </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
+<body>
 
     <div class="header-title">CONSULTORIO INVISIBLE</div>
-
     <div class="ui-frame"></div>
 
     <div class="ui-container">
-        <button class="btn-elegant" onclick="speak('La empatía es el primer paso.')">EMPATÍA</button>
-        <button class="btn-elegant" onclick="speak('Barreras Invisibles.')">VISIBILIDAD</button>
+        <button class="btn-elegant" onclick="speak('La empatía sana.')">Empatía</button>
+        <button class="btn-elegant" onclick="speak('Barreras invisibles.')">Visibilidad</button>
     </div>
 
     <a-scene 
@@ -103,19 +103,18 @@
         renderer="logarithmicDepthBuffer: true; antialias: true;">
         
         <a-marker preset="hiro">
-            
+            <!-- Cubo más grande para asegurar que traspase los bordes de 40px -->
             <a-box id="objeto-ar" 
-                   position="0 0.6 0" 
-                   scale="1.2 1.2 1.2"
-                   material="color: #4ECDC4; opacity: 0.9; metalness: 0.5; roughness: 0.2"
-                   animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
+                   position="0 0.5 0" 
+                   scale="1.5 1.5 1.5"
+                   material="color: #4ECDC4; metalness: 0.5; roughness: 0.2; opacity: 0.95"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear"
                    visible="false">
             </a-box>
 
             <a-text id="texto-ar" value="..." 
-                    position="0 1.8 0" align="center" color="#FFE66D" 
-                    width="3.5" font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt"
-                    visible="false">
+                    position="0 2.2 0" align="center" color="#FFE66D" 
+                    width="4" visible="false">
             </a-text>
         </a-marker>
 
@@ -127,41 +126,45 @@
         const textoEntidad = document.querySelector('#texto-ar');
         const objetoAr = document.querySelector('#objeto-ar');
 
-        // Mostrar/ocultar elementos cuando se detecta el marcador
-        marker.addEventListener('markerFound', () => {
-            objetoAr.setAttribute('visible', 'true');
-            textoEntidad.setAttribute('visible', 'true');
-            console.log("Marcador detectado - Elementos AR visibles");
-        });
-
-        marker.addEventListener('markerLost', () => {
-            objetoAr.setAttribute('visible', 'false');
-            textoEntidad.setAttribute('visible', 'false');
-            console.log("Marcador perdido - Elementos AR ocultos");
-        });
+        // controlar visibilidad según presencia del marcador
+        if (marker) {
+            marker.addEventListener('markerFound', () => {
+                objetoAr.setAttribute('visible', 'true');
+                textoEntidad.setAttribute('visible', 'true');
+            });
+            marker.addEventListener('markerLost', () => {
+                objetoAr.setAttribute('visible', 'false');
+                textoEntidad.setAttribute('visible', 'false');
+            });
+        } else {
+            console.warn('No se encontró <a-marker> en el DOM');
+        }
 
         function speak(frase) {
             textoEntidad.setAttribute('value', frase);
             
-            // Animación de pulso
             objetoAr.setAttribute('animation__pulse', {
                 property: 'scale',
-                from: '1.2 1.2 1.2',
-                to: '1.4 1.4 1.4',
-                dur: 250,
+                from: '1.5 1.5 1.5',
+                to: '1.7 1.7 1.7',
+                dur: 200,
                 dir: 'alternate',
                 loop: 2
             });
 
-            // Voz (con verificación de soporte)
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(frase);
                 utterance.lang = 'es-ES';
                 window.speechSynthesis.speak(utterance);
             } else {
-                console.warn('Speech synthesis no soportado en este navegador');
+                console.warn('Speech synthesis no soportado');
             }
         }
     </script>
+    <noscript>
+        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;z-index:9999;">
+            Este sitio requiere JavaScript para funcionar correctamente.
+        </div>
+    </noscript>
 </body>
 </html>
