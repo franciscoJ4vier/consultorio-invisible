@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>#SALUDame - Consultorio Invisible</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
@@ -12,175 +10,62 @@
         :root {
             --primary-white: #FFFFFF;
             --text-gray: #CCCCCC;
-            --bg-overlay: rgba(0, 0, 0, 0.7);
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Helvetica', sans-serif; }
 
-        html {
-            width: 100%;
-            height: 100%;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: #000;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            width: 100%;
-            height: 100vh;
-            touch-action: none;
-        }
-
-        /* INTERFAZ INSTITUCIONAL (Punto 9: Sobrio y Accesible) */
-        .ui-layer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            box-sizing: border-box;
-            pointer-events: none;
-            z-index: 10;
+        /* UI ADAPTATIVA: Asegura que el texto no se corte en ningún móvil */
+        .ui-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 5vh 5vw; pointer-events: none; z-index: 20;
         }
 
         .campaign-header {
-            position: fixed;
-            top: 2vh;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            text-align: center;
-            color: var(--primary-white);
-            z-index: 20;
-            text-transform: uppercase;
-            letter-spacing: clamp(2px, 0.5vw, 5px);
-            font-size: clamp(11px, 3vw, 18px);
-            font-weight: 600;
+            color: var(--primary-white); text-align: center;
+            text-transform: uppercase; letter-spacing: 0.5em;
+            font-size: clamp(12px, 4vw, 18px); font-weight: 300;
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;
         }
 
         .instruction-tag {
-            position: fixed;
-            bottom: 5vh;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            text-align: center;
-            color: var(--text-gray);
-            z-index: 20;
-            font-size: clamp(9px, 2vw, 12px);
-            letter-spacing: clamp(1px, 0.3vw, 2px);
-            text-transform: uppercase;
+            color: var(--text-gray); text-align: center;
+            font-size: clamp(9px, 2.5vw, 12px); letter-spacing: 0.2em;
+            text-transform: uppercase; background: rgba(0,0,0,0.4); padding: 5px;
         }
 
-        /* FILTRO DE VIDEO PARA REVELAR LO INVISIBLE (Punto 2.2) */
-        #arjs-video {
-            filter: saturate(0.5) brightness(0.7);
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        /* A-Frame responsive */
-        a-scene {
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        /* MEDIA QUERIES - MÓVILES PEQUEÑOS (320px - 480px) */
-        @media (max-width: 480px) {
-            .campaign-header {
-                top: 1.5vh;
-            }
-
-            .instruction-tag {
-                bottom: 3vh;
-            }
-        }
-
-        /* MEDIA QUERIES - MÓVILES MEDIANOS (480px - 768px) */
-        @media (min-width: 481px) and (max-width: 768px) {
-            .campaign-header {
-                top: 2.5vh;
-            }
-
-            .instruction-tag {
-                bottom: 4vh;
-            }
-        }
-
-        /* MEDIA QUERIES - TABLETS (768px - 1024px) */
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .campaign-header {
-                top: 3vh;
-            }
-
-            .instruction-tag {
-                bottom: 5vh;
-            }
-        }
-
-        /* MEDIA QUERIES - DESKTOP (1024px+) */
-        @media (min-width: 1025px) {
-            .campaign-header {
-                top: 3vh;
-            }
-
-            .instruction-tag {
-                bottom: 6vh;
-            }
-        }
-
-        /* Orientación LANDSCAPE */
-        @media (orientation: landscape) {
-            .campaign-header {
-                top: 1.5vh;
-                font-size: clamp(10px, 2.5vw, 16px);
-            }
-
-            .instruction-tag {
-                bottom: 2vh;
-                font-size: clamp(8px, 1.5vw, 10px);
-            }
-        }
-
-        /* Orientación PORTRAIT */
-        @media (orientation: portrait) {
-            body {
-                height: 100vh;
-            }
-        }
+        #arjs-video { filter: grayscale(0.8) contrast(1.2); }
     </style>
 </head>
 <body>
 
-    <div class="ui-layer"></div>
-    <div class="campaign-header">#SALUDame</div>
-    <div class="instruction-tag" id="status">Escaneando marcador institucional...</div>
+    <div class="ui-container">
+        <div class="campaign-header">#SALUDame</div>
+        <div class="instruction-tag" id="status">Buscando marcador institucional...</div>
+    </div>
 
-    <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false; maxARMarkerSize: 0.8;">
+    <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;">
         
-        <a-marker preset="hiro" id="marker-camilla">
+        <a-marker preset="hiro" id="marker">
             
-            <a-entity id="estructura-camilla" position="0 0 0">
-                <a-box id="camilla-base" position="0 0.3 0" width="1.5" height="0.1" depth="0.8" color="#FFFFFF" opacity="0.4" wireframe="true"></a-box>
-                <a-box id="camilla-body" position="0 0.1 0" width="1.4" height="0.4" depth="0.7" color="#CCCCCC" opacity="0.2"></a-box>
-            </a-entity>
+            <a-entity id="wrapper" scale="1 1 1">
+                
+                <a-entity id="camilla">
+                    <a-box position="0 0.2 0" width="1.4" height="0.1" depth="0.7" color="#FFF" opacity="0.3" wireframe="true"></a-box>
+                    <a-box position="0 0.1 0" width="1.3" height="0.3" depth="0.6" color="#AAA" opacity="0.1"></a-box>
+                </a-entity>
 
-            <a-text id="mensaje-discapacidad" 
-                    value="Cuando no somos comprendidos,\nno somos atendidos." 
-                    position="0 1.5 0" align="center" color="#FFFFFF" width="4" opacity="0"
-                    font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt">
-            </a-text>
-            
-            <a-text id="sub-mensaje" 
-                    value="MI SALUD IMPORTA. YO EXISTO." 
-                    position="0 1.0 0" align="center" color="#FFFFFF" width="2.5" opacity="0"
-                    font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt">
-            </a-text>
+                <a-text id="txt-1" 
+                        value="Cuando no somos comprendidos,\nno somos atendidos." 
+                        position="0 1.2 0" align="center" color="#FFF" width="3" opacity="0"
+                        font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt"></a-text>
+                
+                <a-text id="txt-2" 
+                        value="YO EXISTO. MI SALUD IMPORTA." 
+                        position="0 0.8 0" align="center" color="#FFF" width="2" opacity="0"
+                        font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt"></a-text>
+
+            </a-entity>
 
         </a-marker>
 
@@ -188,152 +73,48 @@
     </a-scene>
 
     <script>
-        // ============================================
-        // DETECCIÓN Y ADAPTACIÓN RESPONSIVA
-        // ============================================
-        
-        function getDeviceType() {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            
-            if (width <= 480) return 'mobile-small';
-            if (width <= 768) return 'mobile-large';
-            if (width <= 1024) return 'tablet';
-            return 'desktop';
-        }
-
-        function getScaleFactor() {
-            const deviceType = getDeviceType();
-            const isLandscape = window.innerHeight < window.innerWidth;
-            
-            const scaleMap = {
-                'mobile-small': isLandscape ? 0.6 : 0.7,
-                'mobile-large': isLandscape ? 0.7 : 0.8,
-                'tablet': 0.9,
-                'desktop': 1.0
-            };
-            
-            return scaleMap[deviceType] || 1.0;
-        }
-
-        function getTextScale() {
-            const deviceType = getDeviceType();
-            const isLandscape = window.innerHeight < window.innerWidth;
-            
-            const scaleMap = {
-                'mobile-small': isLandscape ? 0.5 : 0.6,
-                'mobile-large': isLandscape ? 0.65 : 0.75,
-                'tablet': 0.85,
-                'desktop': 1.0
-            };
-            
-            return scaleMap[deviceType] || 1.0;
-        }
-
-        // ============================================
-        // INICIALIZACIÓN Y REFERENCIAS
-        // ============================================
-        
-        const marker = document.querySelector('#marker-camilla');
-        const camilla = document.querySelector('#estructura-camilla');
-        const camillaBase = document.querySelector('#camilla-base');
-        const camillaBody = document.querySelector('#camilla-body');
-        const txt1 = document.querySelector('#mensaje-discapacidad');
-        const txt2 = document.querySelector('#sub-mensaje');
+        const marker = document.querySelector('#marker');
+        const wrapper = document.querySelector('#wrapper');
+        const camilla = document.querySelector('#camilla');
         const status = document.querySelector('#status');
+        const t1 = document.querySelector('#txt-1');
+        const t2 = document.querySelector('#txt-2');
 
-        let deviceType = getDeviceType();
-        let scaleFactor = getScaleFactor();
-        let textScale = getTextScale();
-
-        // ============================================
-        // AJUSTE DE ELEMENTOS SEGÚN DISPOSITIVO
-        // ============================================
-        
-        function adjustForDevice() {
-            deviceType = getDeviceType();
-            scaleFactor = getScaleFactor();
-            textScale = getTextScale();
-            
-            // Escalar estructura de la camilla
-            camilla.setAttribute('scale', `${scaleFactor} ${scaleFactor} ${scaleFactor}`);
-            
-            // Ajustar tamaño de textos
-            txt1.setAttribute('scale', `${textScale} ${textScale} ${textScale}`);
-            txt2.setAttribute('scale', `${textScale} ${textScale} ${textScale}`);
-            
-            // Ajustar ancho de texto según dispositivo
-            const textWidth = deviceType === 'mobile-small' ? 3.5 : (deviceType === 'mobile-large' ? 3.8 : 4);
-            txt1.setAttribute('width', textWidth);
-            txt2.setAttribute('width', textWidth);
+        // AJUSTE AUTOMÁTICO DE ENCUADRE
+        function rescale() {
+            const ratio = window.innerWidth / window.innerHeight;
+            // Si la pantalla es muy estrecha (móvil portrait), reducimos el objeto para que quepa
+            const factor = ratio < 1 ? ratio * 1.2 : 1;
+            wrapper.setAttribute('scale', `${factor} ${factor} ${factor}`);
         }
 
-        // ============================================
-        // EVENT LISTENER DEL MARCADOR
-        // ============================================
-        
+        window.addEventListener('resize', rescale);
+        window.addEventListener('load', rescale);
+
         marker.addEventListener('markerFound', () => {
-            status.innerHTML = "✓ IDENTIFICADO: ELEMENTO CAMILLA";
-            adjustForDevice();
+            status.innerHTML = "Marcador verificado • Ejecutando análisis";
             
-            // Secuencia del Brief: La camilla se desvanece (Punto 6.1)
             setTimeout(() => {
-                camilla.setAttribute('animation', `property: scale; to: 0 0 0; dur: 2500; easing: easeInCubic`);
-                camilla.setAttribute('animation__fade', 'property: opacity; to: 0; dur: 2000');
+                // Desvanecimiento de la camilla física (Punto 6.1)
+                camilla.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 2000; easing: easeInExpo');
                 
-                // Aparece la voz de la persona con discapacidad (Punto 2.5)
                 setTimeout(() => {
-                    txt1.setAttribute('animation', 'property: opacity; to: 1; dur: 1000');
-                    txt2.setAttribute('animation', 'property: opacity; to: 1; dur: 1000; delay: 800');
-                    status.innerHTML = "◆ INTERPELACIÓN ACTIVA";
-                    speak("Cuando no somos comprendidos, no somos atendidos. Mi salud importa. Yo existo.");
+                    t1.setAttribute('animation', 'property: opacity; to: 1; dur: 800');
+                    t2.setAttribute('animation', 'property: opacity; to: 1; dur: 800; delay: 400');
+                    status.innerHTML = "Interpelación activa • Derechos Salud";
+                    speak("Cuando no somos comprendidos, no somos atendidos. Yo existo. Mi salud importa.");
                 }, 1500);
             }, 1000);
         });
 
-        marker.addEventListener('markerLost', () => {
-            status.innerHTML = "Escaneando marcador institucional...";
-        });
-
-        // ============================================
-        // SÍNTESIS DE VOZ
-        // ============================================
-        
-        function speak(text) {
+        function speak(texto) {
             if ('speechSynthesis' in window) {
-                // Cancelar cualquier síntesis anterior
                 window.speechSynthesis.cancel();
-                
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'es-ES';
-                utterance.rate = 0.85; // Tono pausado y serio (Punto 9)
-                utterance.pitch = 1;
-                utterance.volume = 1;
-                
-                window.speechSynthesis.speak(utterance);
+                const u = new SpeechSynthesisUtterance(texto);
+                u.lang = 'es-ES'; u.rate = 0.85; u.pitch = 0.9;
+                window.speechSynthesis.speak(u);
             }
         }
-
-        // ============================================
-        // LISTENER PARA CAMBIOS DE ORIENTACIÓN Y REDIMENSIONAMIENTO
-        // ============================================
-        
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                adjustForDevice();
-            }, 100);
-        });
-
-        window.addEventListener('resize', () => {
-            adjustForDevice();
-        });
-
-        // Ajuste inicial al cargar
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                adjustForDevice();
-            }, 500);
-        });
     </script>
 </body>
 </html>
