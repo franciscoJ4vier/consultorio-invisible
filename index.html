@@ -3,52 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>#SALUDame - Estaciones de Incidencia</title>
+    <title>#SALUDame - Interacción Táctil</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script>
     <style>
         #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; color: white; z-index: 10000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s; font-family: 'Helvetica', sans-serif;
+            font-family: sans-serif; transition: opacity 0.5s;
         }
-        .loader { width: 30px; height: 30px; border: 2px solid #222; border-top: 2px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        .ui-header { position: fixed; top: 30px; width: 100%; text-align: center; color: white; z-index: 100; letter-spacing: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-        #arjs-video { filter: contrast(1.1) brightness(0.8) grayscale(0.5); }
+        .instruction-overlay {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,0.6); font-size: 10px; z-index: 100;
+            text-align: center; pointer-events: none; text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
 
     <div id="splash">
-        <div class="loader"></div>
-        <div style="letter-spacing: 3px; font-size: 11px;">PROTOCOLOS DE VISIBILIDAD</div>
+        <div style="letter-spacing: 4px; font-size: 12px;">MODO INTERACTIVO</div>
+        <p style="font-size: 9px; color: #666;">Pellizca la pantalla para ajustar tamaño</p>
     </div>
 
-    <div class="ui-header">#SALUDame : CONSULTORIO INVISIBLE</div>
+    <div class="instruction-overlay">Usa dos dedos para alejar o acercar el elemento</div>
 
-    <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;">
-        
-        <a-marker preset="kanji" id="marker-escritorio">
-            <a-entity id="escritorio-logic">
-                <a-text id="term-1" value="HIPERCOLESTEROLEMIA\nIDIOPATICA" position="-1 1.5 0" width="2" color="#666" opacity="1"></a-text>
-                <a-text id="term-2" value="PROCEDIMIENTO\nINVASIVO" position="1 1.2 -1" width="2" color="#666" opacity="1"></a-text>
-                
-                <a-text id="msg-escritorio" 
-                        value="LA INFORMACION ES UN DERECHO.\nHABLAME CLARO." 
-                        position="0 1.5 0" align="center" color="#FFF" width="4" scale="0 0 0"></a-text>
-            </a-entity>
-        </a-marker>
+    <a-scene 
+        embedded 
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+        gesture-detector
+        vr-mode-ui="enabled: false">
 
-        <a-marker preset="hiro" id="marker-silla">
-            <a-entity id="silla-logic">
-                <a-box id="presencia" position="0 0.5 0" material="wireframe: true; color: #FFF" scale="1 1 1"></a-box>
+        <a-marker 
+            preset="hiro" 
+            raycaster="objects: .clickable"
+            emitevents="true" 
+            cursor="fuse: false; rayOrigin: mouse;"
+            id="marker">
+            
+            <a-entity 
+                id="main-wrapper"
+                gesture-handler="minScale: 0.25; maxScale: 4;"
+                class="clickable"
+                position="0 0 0">
                 
-                <a-text id="msg-silla" 
-                        value="HABLAME A MI.\nNO A MI ACOMPAÑANTE." 
-                        position="0 1.6 0" align="center" color="#FFF" width="4.5" opacity="0"></a-text>
+                <a-entity id="camilla">
+                    <a-box position="0 0.2 0" width="1.5" height="0.1" depth="0.8" color="#FFF" opacity="0.3" wireframe="true"></a-box>
+                    <a-box position="0 0.1 0" width="1.4" height="0.3" depth="0.7" color="#FFF" opacity="0.1"></a-box>
+                </a-entity>
+
+                <a-entity id="textos" position="0 1.2 0" scale="0 0 0">
+                    <a-text value="Cuando no somos comprendidos,\nno somos atendidos." 
+                            align="center" color="#FFFFFF" width="3.5" position="0 0.2 0"></a-text>
+                    <a-text value="YO EXISTO. MI SALUD IMPORTA." 
+                            align="center" color="#888" width="2.5" position="0 -0.3 0"></a-text>
+                </a-entity>
             </a-entity>
         </a-marker>
 
@@ -56,48 +67,32 @@
     </a-scene>
 
     <script>
-        // Quitar Splash
+        // Quitar splash al iniciar cámara
         window.addEventListener('camera-init', () => {
-            setTimeout(() => { document.getElementById('splash').style.opacity = '0'; }, 1500);
+            setTimeout(() => { document.getElementById('splash').style.opacity = '0'; }, 1000);
         });
 
-        // Lógica Estación Escritorio
-        document.querySelector('#marker-escritorio').addEventListener('markerFound', () => {
-            const t1 = document.querySelector('#term-1');
-            const t2 = document.querySelector('#term-2');
-            const msg = document.querySelector('#msg-escritorio');
+        const marker = document.getElementById('marker');
+        const camilla = document.getElementById('camilla');
+        const textos = document.getElementById('textos');
 
-            // Las palabras complejas se desvanecen
-            t1.setAttribute('animation', 'property: opacity; to: 0; dur: 2000');
-            t2.setAttribute('animation', 'property: opacity; to: 0; dur: 2000; delay: 500');
-            
+        marker.addEventListener('markerFound', () => {
             setTimeout(() => {
-                msg.setAttribute('animation', 'property: scale; to: 1 1 1; dur: 1000; easing: easeOutElastic');
-                speak("La información es un derecho. Háblame claro.");
-            }, 2500);
+                // Animación de desvanecimiento
+                camilla.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 2000; easing: easeInBack');
+                
+                setTimeout(() => {
+                    // Revelar mensaje
+                    textos.setAttribute('animation', 'property: scale; to: 1 1 1; dur: 1000; easing: easeOutElastic');
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const u = new SpeechSynthesisUtterance("Cuando no somos comprendidos, no somos atendidos. Yo existo. Mi salud importa.");
+                        u.lang = 'es-ES'; u.rate = 0.85;
+                        window.speechSynthesis.speak(u);
+                    }
+                }, 1800);
+            }, 1000);
         });
-
-        // Lógica Estación Silla
-        document.querySelector('#marker-silla').addEventListener('markerFound', () => {
-            const presencia = document.querySelector('#presencia');
-            const msg = document.querySelector('#msg-silla');
-
-            presencia.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 2000');
-            
-            setTimeout(() => {
-                msg.setAttribute('animation', 'property: opacity; to: 1; dur: 1000');
-                speak("Háblame a mí. No a mi acompañante.");
-            }, 1500);
-        });
-
-        function speak(t) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(t);
-                u.lang = 'es-ES'; u.rate = 0.85;
-                window.speechSynthesis.speak(u);
-            }
-        }
     </script>
 </body>
 </html>
