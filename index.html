@@ -3,47 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Consultorio Interactivo</title>
+    <title>Consultorio Invisible | Premium AR</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; font-family: sans-serif; }
-        
-        /* Contenedor de botones */
-        .controls {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 15px; z-index: 1000; width: 90%; justify-content: center;
+        :root {
+            --primary: #4ECDC4;
+            --accent: #FFE66D;
+            --bg-glass: rgba(15, 15, 15, 0.7);
         }
 
-        .btn {
-            background: #4ECDC4; border: none; color: white; padding: 15px;
-            border-radius: 10px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex: 1;
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+        /* Header Minimalista */
+        .header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            padding: 20px; box-sizing: border-box;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            color: white; z-index: 10; text-align: left;
+            letter-spacing: 2px;
+        }
+        .header h1 { margin: 0; font-size: 14px; font-weight: 300; opacity: 0.8; }
+        .header div { width: 40px; height: 2px; background: var(--primary); margin-top: 5px; }
+
+        /* Contenedor de Botones */
+        .ui-container {
+            position: fixed; bottom: 40px; left: 0; width: 100%;
+            display: flex; flex-direction: column; align-items: center;
+            gap: 12px; z-index: 100;
         }
 
-        .btn-audio { background: #FF6B6B; } /* Botón rojo para alerta */
+        .btn-elegant {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            width: 85%;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        #arjs-video { object-fit: cover !important; width: 100vw !important; height: 100vh !important; }
+        .btn-elegant:active {
+            transform: scale(0.95);
+            background: rgba(78, 205, 196, 0.2);
+            border-color: var(--primary);
+        }
+
+        .btn-elegant span { color: var(--primary); font-size: 18px; }
+
+        /* Ajuste de video */
+        #arjs-video { object-fit: cover !important; }
     </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
+<body>
 
-    <div class="controls">
-        <button class="btn" onclick="accionAR('No me escuchan', 'Cuando no somos comprendidos, no somos atendidos.')">FRASE 1</button>
-        <button class="btn btn-audio" onclick="accionAR('Tengo dolor', 'El dolor invisible también es real y necesita atención.')">FRASE 2</button>
+    <div class="header">
+        <h1>CONSULTORIO INVISIBLE</h1>
+        <div></div>
+    </div>
+
+    <div class="ui-container">
+        <button class="btn-elegant" onclick="speak('La empatía es el primer paso para una atención digna.', 'EMPATÍA')">
+            La Experiencia del Paciente <span>→</span>
+        </button>
+        
+        <button class="btn-elegant" onclick="speak('Cuando no somos comprendidos, no somos atendidos.', 'VISIBILIDAD')">
+            Barreras Invisibles <span>→</span>
+        </button>
+
+        <button class="btn-elegant" style="border-color: var(--accent);" onclick="speak('El sistema debe adaptarse a la persona, no al revés.', 'SISTEMA')">
+            Propuesta de Cambio <span>●</span>
+        </button>
     </div>
 
     <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;">
         
         <a-marker preset="hiro">
-            <!-- El Cubo que reacciona -->
-            <a-box id="cubo" position="0 0.5 0" color="#4ECDC4" 
-                   animation="property: rotation; to: 0 360 0; loop: true; dur: 4000; easing: linear">
+            <!-- Objeto Central Elegante -->
+            <a-box id="objeto-ar" position="0 0.5 0" scale="0.8 0.8 0.8"
+                   material="color: #ffffff; opacity: 0.9; metalness: 0.5; roughness: 0.2"
+                   animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
             </a-box>
 
-            <!-- Texto dinámico -->
-            <a-text id="texto-ar" value="Toca un boton" 
-                    position="0 1.5 0" align="center" color="#FFE66D" width="3.5">
+            <!-- Texto AR -->
+            <a-text id="texto-ar" value="..." 
+                    position="0 1.5 0" align="center" color="#FFE66D" 
+                    width="3.2" font="https://cdn.aframe.io/fonts/Aileron-Semibold.fnt">
             </a-text>
         </a-marker>
 
@@ -52,20 +106,27 @@
 
     <script>
         const textoEntidad = document.querySelector('#texto-ar');
-        const cuboEntidad = document.querySelector('#cubo');
+        const objetoAr = document.querySelector('#objeto-ar');
 
-        function accionAR(voz, textoLargo) {
-            // 1. Cambiar el texto en el aire
-            textoEntidad.setAttribute('value', textoLargo);
+        function speak(frase, etiqueta) {
+            // Actualizar Texto en AR
+            textoEntidad.setAttribute('value', frase);
+            
+            // Animación de pulso al objeto
+            objetoAr.setAttribute('animation__pulse', {
+                property: 'scale',
+                from: '0.8 0.8 0.8',
+                to: '1.1 1.1 1.1',
+                dur: 300,
+                dir: 'alternate',
+                loop: 2
+            });
 
-            // 2. Hacer que el cubo reaccione (cambio de color momentáneo)
-            cuboEntidad.setAttribute('material', 'color', '#FF6B6B');
-            setTimeout(() => cuboEntidad.setAttribute('material', 'color', '#4ECDC4'), 500);
-
-            // 3. Hablar (Sonido)
-            const mensajeVoz = new SpeechSynthesisUtterance(voz);
-            mensajeVoz.lang = 'es-ES';
-            window.speechSynthesis.speak(mensajeVoz);
+            // Voz
+            const utterance = new SpeechSynthesisUtterance(frase);
+            utterance.lang = 'es-ES';
+            utterance.rate = 0.9; // Un poco más lento para que suene elegante
+            window.speechSynthesis.speak(utterance);
         }
     </script>
 </body>
